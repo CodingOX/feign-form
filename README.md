@@ -2,6 +2,8 @@
 该项目的提供了原生Feign和Spring Feign的2种不同形式在复杂参数下的用法。
 在平时的项目中，可以参照此进行代码编写！
 
+不太懂：/multipart/download/{fileId}
+
 # Form Encoder
 
 [![build_status](https://travis-ci.org/OpenFeign/feign-form.svg?branch=master)](https://travis-ci.org/OpenFeign/feign-form)

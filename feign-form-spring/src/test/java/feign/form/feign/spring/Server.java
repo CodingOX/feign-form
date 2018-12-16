@@ -17,7 +17,6 @@
 package feign.form.feign.spring;
 
 import lombok.SneakyThrows;
-import lombok.val;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.core.io.ClassPathResource;
@@ -100,18 +99,19 @@ public class Server {
             produces = MULTIPART_FORM_DATA_VALUE
     )
     public MultiValueMap<String, Object> download(@PathVariable("fileId") String fileId) {
-        val multiParts = new LinkedMultiValueMap<String, Object>();
+        LinkedMultiValueMap multiParts = new LinkedMultiValueMap<String, Object>();
 
-        val infoString = "The text for file ID " + fileId + ". Testing unicode €";
-        val infoPartheader = new HttpHeaders();
-        infoPartheader.setContentType(new MediaType("text", "plain", UTF_8));
+        String infoString = "The text for file ID " + fileId + ". Testing unicode €";
+        HttpHeaders infoPartHeader = new HttpHeaders();
+        infoPartHeader.setContentType(new MediaType("text", "plain", UTF_8));
 
-        val infoPart = new HttpEntity<String>(infoString, infoPartheader);
+        HttpEntity infoPart = new HttpEntity<>(infoString, infoPartHeader);
 
-        val file = new ClassPathResource("testfile.txt");
-        val filePartHeader = new HttpHeaders();
+        ClassPathResource file = new ClassPathResource("testfile.txt");
+        HttpHeaders filePartHeader = new HttpHeaders();
         filePartHeader.setContentType(APPLICATION_OCTET_STREAM);
-        val filePart = new HttpEntity<ClassPathResource>(file, filePartHeader);
+
+        HttpEntity filePart = new HttpEntity<>(file, filePartHeader);
 
         multiParts.add("info", infoPart);
         multiParts.add("file", filePart);
