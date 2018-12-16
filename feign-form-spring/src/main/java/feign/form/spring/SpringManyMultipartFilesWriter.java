@@ -16,54 +16,52 @@
 
 package feign.form.spring;
 
-import static lombok.AccessLevel.PRIVATE;
-
 import feign.form.multipart.AbstractWriter;
 import feign.form.multipart.Output;
-
 import lombok.experimental.FieldDefaults;
 import lombok.val;
 import org.springframework.web.multipart.MultipartFile;
 
+import static lombok.AccessLevel.PRIVATE;
+
 /**
- *
  * @author Artem Labazin
  */
 @FieldDefaults(level = PRIVATE, makeFinal = true)
 public class SpringManyMultipartFilesWriter extends AbstractWriter {
 
-  SpringSingleMultipartFileWriter fileWriter = new SpringSingleMultipartFileWriter();
+    SpringSingleMultipartFileWriter fileWriter = new SpringSingleMultipartFileWriter();
 
-  @Override
-  public void write (Output output, String boundary, String key, Object value) throws Exception {
-    if (value instanceof MultipartFile[]) {
-      val files = (MultipartFile[]) value;
-      for (val file : files) {
-        fileWriter.write(output, boundary, key, file);
-      }
-    } else if (value instanceof Iterable) {
-      val iterable = (Iterable<?>) value;
-      for (val file : iterable) {
-        fileWriter.write(output, boundary, key, file);
-      }
+    @Override
+    public void write(Output output, String boundary, String key, Object value) throws Exception {
+        if (value instanceof MultipartFile[]) {
+            val files = (MultipartFile[]) value;
+            for (val file : files) {
+                fileWriter.write(output, boundary, key, file);
+            }
+        } else if (value instanceof Iterable) {
+            val iterable = (Iterable<?>) value;
+            for (val file : iterable) {
+                fileWriter.write(output, boundary, key, file);
+            }
+        }
     }
-  }
 
-  @Override
-  public boolean isApplicable (Object value) {
-    if (value == null) {
-      return false;
+    @Override
+    public boolean isApplicable(Object value) {
+        if (value == null) {
+            return false;
+        }
+        if (value instanceof MultipartFile[]) {
+            return true;
+        }
+        if (value instanceof Iterable) {
+            val iterable = (Iterable<?>) value;
+            val iterator = iterable.iterator();
+            if (iterator.hasNext() && iterator.next() instanceof MultipartFile) {
+                return true;
+            }
+        }
+        return false;
     }
-    if (value instanceof MultipartFile[]) {
-      return true;
-    }
-    if (value instanceof Iterable) {
-      val iterable = (Iterable<?>) value;
-      val iterator = iterable.iterator();
-      if (iterator.hasNext() && iterator.next() instanceof MultipartFile) {
-        return true;
-      }
-    }
-    return false;
-  }
 }

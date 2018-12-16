@@ -15,11 +15,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
-import lombok.val;
-
+/**
+ * 多个文件下载的接口
+ */
 @FeignClient(
         name = "multipart-download-support-service",
         url = "http://localhost:8080",
@@ -31,27 +33,30 @@ public interface DownloadClient {
             value = "/multipart/download/{fileId}",
             method = GET
     )
-    MultipartFile[] download (@PathVariable("fileId") String fileId);
+    MultipartFile[] download(@PathVariable("fileId") String fileId);
 
+    /**
+     * 多文件下载feign的配置
+     */
     class ClientConfiguration {
-
         @Autowired
         private ObjectFactory<HttpMessageConverters> messageConverters;
 
         @Bean
-        public Decoder feignDecoder () {
-            val springConverters = messageConverters.getObject().getConverters();
-            val decoderConverters = new ArrayList<HttpMessageConverter<?>>(springConverters.size() + 1);
-
+        public Decoder feignDecoder() {
+            //获取原本的 Convert
+            List<HttpMessageConverter<?>> springConverters = messageConverters.getObject().getConverters();
+            //准备构建新的Convert
+            List<HttpMessageConverter<?>> decoderConverters = new ArrayList<>(springConverters.size() + 1);
             decoderConverters.addAll(springConverters);
+            //添加新的 多文件下载 解析器
             decoderConverters.add(new SpringManyMultipartFilesReader(4096));
-
-            val httpMessageConverters = new HttpMessageConverters(decoderConverters);
-
+            //通过构造函数传入
+            HttpMessageConverters httpMessageConverters = new HttpMessageConverters(decoderConverters);
+            //Bingo
             return new SpringDecoder(new ObjectFactory<HttpMessageConverters>() {
-
                 @Override
-                public HttpMessageConverters getObject () {
+                public HttpMessageConverters getObject() {
                     return httpMessageConverters;
                 }
             });

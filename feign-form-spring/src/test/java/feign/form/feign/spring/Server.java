@@ -16,14 +16,6 @@
 
 package feign.form.feign.spring;
 
-import static org.springframework.http.MediaType.APPLICATION_OCTET_STREAM;
-import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
-import static feign.form.util.CharsetUtil.UTF_8;
-
-import java.util.Map;
-
 import lombok.SneakyThrows;
 import lombok.val;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -34,13 +26,16 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Map;
+
+import static feign.form.util.CharsetUtil.UTF_8;
+import static org.springframework.http.MediaType.APPLICATION_OCTET_STREAM;
+import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
+import static org.springframework.web.bind.annotation.RequestMethod.GET;
+import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 /**
  * @author Tomasz Juchniewicz <tjuchniewicz@gmail.com>
@@ -54,58 +49,57 @@ public class Server {
     @RequestMapping(
             value = "/multipart/upload1/{folder}",
             method = POST,
-            consumes = MULTIPART_FORM_DATA_VALUE
-    )
+            consumes = MULTIPART_FORM_DATA_VALUE)
     @SneakyThrows
-    public String upload1 (@PathVariable("folder") String folder,
-                           @RequestPart MultipartFile file,
-                           @RequestParam(value = "message", required = false) String message
-    ) {
+    public String upload1(@PathVariable("folder") String folder,
+                          @RequestPart MultipartFile file,
+                          @RequestParam(value = "message", required = false) String message) {
         return new String(file.getBytes()) + ':' + message + ':' + folder;
     }
 
     @RequestMapping(
             value = "/multipart/upload2/{folder}",
             method = POST,
-            consumes = MULTIPART_FORM_DATA_VALUE
-    )
+            consumes = MULTIPART_FORM_DATA_VALUE)
     @SneakyThrows
-    public String upload2 (@RequestBody MultipartFile file,
-                           @PathVariable("folder") String folder,
-                           @RequestParam(value = "message", required = false) String message
-    ) {
+    public String upload2(@RequestBody MultipartFile file,
+                          @PathVariable("folder") String folder,
+                          @RequestParam(value = "message", required = false) String message) {
         return new String(file.getBytes()) + ':' + message + ':' + folder;
     }
+
 
     @RequestMapping(
             value = "/multipart/upload3/{folder}",
             method = POST,
-            consumes = MULTIPART_FORM_DATA_VALUE
-    )
-    public String upload3 (@RequestBody MultipartFile file,
-                           @PathVariable("folder") String folder,
-                           @RequestParam(value = "message", required = false) String message
-    ) {
+            consumes = MULTIPART_FORM_DATA_VALUE)
+    public String upload3(@RequestBody MultipartFile file,
+                          @PathVariable("folder") String folder,
+                          @RequestParam(value = "message", required = false) String message) {
         return file.getOriginalFilename() + ':' + file.getContentType() + ':' + folder;
     }
 
     @RequestMapping(
             path = "/multipart/upload4/{id}",
-            method = POST
-    )
-    public String upload4 (@PathVariable("id") String id,
-                           @RequestBody Map<String, Object> map,
-                           @RequestParam String userName
-    ) {
+            method = POST)
+    public String upload4(@PathVariable("id") String id,
+                          @RequestBody Map<String, Object> map,
+                          @RequestParam String userName) {
         return userName + ':' + id + ':' + map.size();
     }
 
+    /**
+     * Chrome应该解析不了吧！
+     *
+     * @param fileId
+     * @return
+     */
     @RequestMapping(
             value = "/multipart/download/{fileId}",
             method = GET,
             produces = MULTIPART_FORM_DATA_VALUE
     )
-    public MultiValueMap<String, Object> download (@PathVariable("fileId") String fileId) {
+    public MultiValueMap<String, Object> download(@PathVariable("fileId") String fileId) {
         val multiParts = new LinkedMultiValueMap<String, Object>();
 
         val infoString = "The text for file ID " + fileId + ". Testing unicode €";
@@ -115,9 +109,9 @@ public class Server {
         val infoPart = new HttpEntity<String>(infoString, infoPartheader);
 
         val file = new ClassPathResource("testfile.txt");
-        val filePartheader = new HttpHeaders();
-        filePartheader.setContentType(APPLICATION_OCTET_STREAM);
-        val filePart = new HttpEntity<ClassPathResource>(file, filePartheader);
+        val filePartHeader = new HttpHeaders();
+        filePartHeader.setContentType(APPLICATION_OCTET_STREAM);
+        val filePart = new HttpEntity<ClassPathResource>(file, filePartHeader);
 
         multiParts.add("info", infoPart);
         multiParts.add("file", filePart);

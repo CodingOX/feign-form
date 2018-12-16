@@ -16,62 +16,68 @@
 
 package feign.form;
 
+import feign.*;
+
 import java.io.File;
 import java.util.List;
 import java.util.Map;
 
-import feign.Headers;
-import feign.Param;
-import feign.QueryMap;
-import feign.RequestLine;
-import feign.Response;
-
 /**
- *
  * @author Artem Labazin
  */
 public interface TestClient {
 
-  @RequestLine("POST /form")
-  @Headers("Content-Type: application/x-www-form-urlencoded")
-  Response form (@Param("key1") String key1, @Param("key2") String key2);
+    //POST方式下 Feign通过 urlencoded的方式传递参数
+    @RequestLine("POST /form")
+    @Headers("Content-Type: application/x-www-form-urlencoded")
+    Response form(@Param("key1") String key1, @Param("key2") String key2);
 
-  @RequestLine("POST /upload/{id}")
-  @Headers("Content-Type: multipart/form-data")
-  String upload (@Param("id") Integer id, @Param("public") Boolean isPublic, @Param("file") File file);
+    //上传文件的同时，传递id和其他参数
+    @RequestLine("POST /upload/{id}")
+    @Headers("Content-Type: multipart/form-data")
+    String upload(@Param("id") Integer id, @Param("public") Boolean isPublic, @Param("file") File file);
 
-  @RequestLine("POST /upload")
-  @Headers("Content-Type: multipart/form-data")
-  String upload (@Param("file") File file);
+    //传递文件
+    @RequestLine("POST /upload")
+    @Headers("Content-Type: multipart/form-data")
+    String upload(@Param("file") File file);
 
-  @RequestLine("POST /json")
-  @Headers("Content-Type: application/json")
-  String json (Dto dto);
+    //本来就支持？
+    @RequestLine("POST /json")
+    @Headers("Content-Type: application/json")
+    String json(Dto dto);
 
-  @RequestLine("POST /query_map")
-  String queryMap (@QueryMap Map<String, Object> value);
+    //POST支持map
+    @RequestLine("POST /query_map")
+    String queryMap(@QueryMap Map<String, Object> value);
 
-  @RequestLine("POST /upload/files")
-  @Headers("Content-Type: multipart/form-data")
-  String uploadWithArray (@Param("files") File[] files);
+    //多文件上传1
+    @RequestLine("POST /upload/files")
+    @Headers("Content-Type: multipart/form-data")
+    String uploadWithArray(@Param("files") File[] files);
 
-  @RequestLine("POST /upload/files")
-  @Headers("Content-Type: multipart/form-data")
-  String uploadWithList (@Param("files") List<File> files);
+    //多文件上传2
+    @RequestLine("POST /upload/files")
+    @Headers("Content-Type: multipart/form-data")
+    String uploadWithList(@Param("files") List<File> files);
 
-  @RequestLine("POST /upload/files")
-  @Headers("Content-Type: multipart/form-data")
-  String uploadWithManyFiles (@Param("files") File file1, @Param("files") File file2);
+    //多文件上传3
+    @RequestLine("POST /upload/files")
+    @Headers("Content-Type: multipart/form-data")
+    String uploadWithManyFiles(@Param("files") File file1, @Param("files") File file2);
 
-  @RequestLine("POST /upload/with_json")
-  @Headers("Content-Type: multipart/form-data")
-  Response uploadWithJson (@Param("dto") Dto dto, @Param("file") File file);
+    //文件上传+JSON
+    @RequestLine("POST /upload/with_json")
+    @Headers("Content-Type: multipart/form-data")
+    Response uploadWithJson(@Param("dto") Dto dto, @Param("file") File file);
 
-  @RequestLine("POST /upload/unknown_type")
-  @Headers("Content-Type: multipart/form-data")
-  String uploadUnknownType (@Param("file") File file);
+    //
+    @RequestLine("POST /upload/unknown_type")
+    @Headers("Content-Type: multipart/form-data")
+    String uploadUnknownType(@Param("file") File file);
 
-  @RequestLine("POST /upload/form_data")
-  @Headers("Content-Type: multipart/form-data")
-  String uploadFormData (@Param("file") FormData formData);
+    //FormData格式的数据，可以是自定义
+    @RequestLine("POST /upload/form_data")
+    @Headers("Content-Type: multipart/form-data")
+    String uploadFormData(@Param("file") FormData formData);
 }
